@@ -84,9 +84,38 @@ app.post("/save-article", async (request, response) => {
   // Vérifier si le titre existe déjà dans la base
   const existingArticle = await Article.findOne({ title: articleJson.title });
 
-  //RG-003 : Si titre deja existant, code 701
+  // Contrôle de surface
+  if (!articleJson.title || !articleJson.content || !articleJson.author) {
+    return response.json({
+      code: "710",
+      error: "Un des champs est manquant",
+    });
+  }
+
+  if (typeof articleJson.title != "string") {
+    return response.json({
+      code: "710",
+      error: "Le champs title doit être une châine de caractère",
+    });
+  }
+
+  if (typeof articleJson.content != "string") {
+    return response.json({
+      code: "710",
+      error: "Le champs content doit être une châine de caractère",
+    });
+  }
+
+  if (typeof articleJson.author != "string") {
+    return response.json({
+      code: "710",
+      error: "Le champs author doit être une châine de caractère",
+    });
+  }
 
   if (existingArticle) {
+    //RG-003 : Si titre deja existant, code 701
+
     return response.json({
       code: "701",
       message: "Impossible d'ajouter un article avec un titre déjà existant",
@@ -121,6 +150,35 @@ app.put("/article/:id", async (request, response) => {
   // Vérifier si le titre existe déjà dans la base
   const existingArticle = await Article.findOne({ title: articleJson.title });
 
+  // Contrôle de surface
+  if (!articleJson.title || !articleJson.content || !articleJson.author) {
+    return response.json({
+      code: "710",
+      error: "Un des champs est manquant",
+    });
+  }
+
+  if (typeof articleJson.title != "string") {
+    return response.json({
+      code: "710",
+      error: "Le champs title doit être une châine de caractère",
+    });
+  }
+
+  if (typeof articleJson.content != "string") {
+    return response.json({
+      code: "710",
+      error: "Le champs content doit être une châine de caractère",
+    });
+  }
+
+  if (typeof articleJson.author != "string") {
+    return response.json({
+      code: "710",
+      error: "Le champs author doit être une châine de caractère",
+    });
+  }
+
   // RG-004 : Si titre deja existant, code 701
   if (existingArticle) {
     return response.json({
@@ -130,7 +188,7 @@ app.put("/article/:id", async (request, response) => {
     });
   }
 
-  // RG-002 : récupérer l'article trouvé et le modifier
+  // RG-004 : récupérer l'article trouvé et le modifier
   const foundArticle = await Article.findOneAndUpdate(
     { _id: idParam },
     articleJson,

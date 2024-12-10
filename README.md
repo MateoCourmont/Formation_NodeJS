@@ -26,6 +26,10 @@
 
 ##### 701 | Impossible d'ajouter un article avec un titre déjà existant | Null
 
+##### Si contrôle de surface invalide
+
+##### 710 | Contrôle de surface non valide | La liste des erreurs en JSON
+
 ### RG-004 : Modifier un article
 
 ##### Si modifié avec succès

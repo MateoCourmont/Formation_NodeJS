@@ -111,6 +111,52 @@ app.post("/save-article", async (request, response) => {
   });
 });
 
+// Modifier un article
+app.put("/article/:id", async (request, response) => {
+  const articleJson = request.body;
+
+  // Récupérer l'article par son id
+  const idParam = request.params.id;
+
+  // Vérifier si le titre existe déjà dans la base
+  const existingArticle = await Article.findOne({ title: articleJson.title });
+
+  // RG-004 : Si titre deja existant, code 701
+  if (existingArticle) {
+    return response.json({
+      code: "701",
+      message: "Impossible de modifier un article avec un titre déjà existant",
+      data: null,
+    });
+  }
+
+  // RG-002 : récupérer l'article trouvé et le modifier
+  const foundArticle = await Article.findOneAndUpdate(
+    { _id: idParam },
+    articleJson,
+    { new: true, runValidators: true }
+  );
+
+  //RG-004 : Si l'id n'existe pas en base ; code 702
+  if (!foundArticle) {
+    return response.json({
+      code: "702",
+      message:
+        "Impossible de récupérer un article et le modifier avec l'UID inexistant: " +
+        idParam,
+      data: null,
+    });
+  }
+
+  //RG-004 : si modifié avec succès
+
+  return response.json({
+    code: "200",
+    message: "Article modifié avec succès",
+    data: foundArticle,
+  });
+});
+
 // Supprimer un article
 app.delete("/article/:id", async (request, response) => {
   // Récupérer l'article par son id

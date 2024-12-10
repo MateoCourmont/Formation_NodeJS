@@ -36,6 +36,10 @@
 
 ##### 701 | Impossible de modifier un article si un autre article possède un titre similaire | Null
 
+##### Si l'id n'existe pas en base
+
+##### 702 | Impossible de récupérer un article et le modifier avec l'UID inexistant $uid | Null
+
 ##### Si contrôle de surface invalide
 
 ##### 710 | Contrôle de surface non valide | La liste des erreurs en JSON

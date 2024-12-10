@@ -1,23 +1,51 @@
-# **Features:**
+# Règle de gestion
 
-### **FT-001 : Récupérer les produits (l'url products/)**
+### RG-001 : Récupérer les articles
 
-##### RG-001 : Si la liste est vide retourner un code 701
+##### Si les articles ont été récupérés
 
-##### RG-002 : Sinon la liste des produits
+##### 200 | La liste des articles a été récupérés avec succès | Les articles en JSON
 
-### **FT-002 : Récupérer un produit par son id**
+### RG-002 : Récupérer un article
 
-##### RG-003 : Si l'id n'existe pas en base code 705
+##### Si l'uid existe et l'article récupéré avec succès
 
-##### RG-004 : Sinon on retourne le produit trouvé
+##### 200 | Article récupéré avec succès | L'article JSON
 
-### **FT-003 : Ajouter un produit**
+##### Si l'uid n'existe pas en base
 
-##### RG-005 : Retourne le produit crée
+##### 702 | Impossible de récupérer un article avec l'UID $uid | Null
 
-### **FT-004 : Supprimer un produit**
+### RG-003 : Ajouter un article
 
-##### RG-006 : Si l'id n'existe pas en base code 708
+##### Si ajouté avec succès
 
-##### RG-007 : Sinon on supprime le produit trouvé
+##### 200 | Article ajouté avec succès | L'article JSON
+
+##### Si le titre existe déjà en base
+
+##### 701 | Impossible d'ajouter un article avec un titre déjà existant | Null
+
+### RG-004 : Modifier un article
+
+##### Si modifié avec succès
+
+##### 200 | Article modifié avec succès | L'article JSON
+
+##### Si le titre existe déjà en base
+
+##### 701 | Impossible de modifier un article si un autre article possède un titre similaire | Null
+
+##### Si contrôle de surface invalide
+
+##### 710 | Contrôle de surface non valide | La liste des erreurs en JSON
+
+### RG-005 : Supprimer un article
+
+##### Si supprimé avec succès
+
+##### 200 | L'article $uid a été supprimé avec succès | L'article supprimé JSON
+
+##### Si l'uid n'existe pas en base
+
+##### 702 | Impossible de supprimer un article dont l'UID n'existe pas | Null

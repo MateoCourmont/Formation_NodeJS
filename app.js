@@ -1,7 +1,8 @@
-// Importer le module express
+// Importer les modules
 const express = require("express");
-// Importer le module mongoose
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 // Quand je suis connecté à la bdd (evenementiel)
 mongoose.connection.once("open", () => {
@@ -23,6 +24,25 @@ const Article = mongoose.model(
   { title: String, content: String, author: String },
   "articles_collection"
 );
+
+// // Créer le schema
+// const userSchema = mongoose.Schema({
+//   email: {
+//     type: String,
+//     required: [true, "Etrez un email"],
+//     unique: true,
+//   },
+//   password: {
+//     type: String,
+//     required: [true, "Entrez un mot de passe"],
+//   },
+// });
+
+// // Enregistrer le modèle et définir explicitement la collection
+// const User = mongoose.model("User", userSchema, "user_list");
+
+// // Créer une instance utilisateur
+// const newUser = new User({ email, password });
 
 // Instancier le server grace à express
 const app = express();

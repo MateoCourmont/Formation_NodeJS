@@ -21,7 +21,7 @@ mongoose.connect("mongodb://localhost:27017/db_articles");
 
 // Définir le schéma pour les films
 const movieSchema = new mongoose.Schema({
-  id: { type: Number, unique: true, default: uuidv4 }, // Identifiant unique du film
+  id: { type: Number, unique: true }, // Identifiant unique du film
   title: { type: String }, // Titre du film
   genres: { type: String }, // Genres
   cast: { type: String }, // Liste des acteurs
@@ -32,22 +32,8 @@ const movieSchema = new mongoose.Schema({
   vote_average: { type: Number }, // Note moyenne
 });
 
-movieSchema.pre("save", async function (next) {
-  if (this.isNew) {
-    // Vérifier si l'ID généré existe déjà dans la base
-    const existingMovie = await mongoose
-      .model("Movie")
-      .findOne({ id: this.id });
-    if (existingMovie) {
-      // Si un doublon est détecté, générer un nouvel ID
-      this.id = uuidv4();
-    }
-  }
-  next();
-});
-
 // Créer le modèle basé sur le schéma
-const Movie = mongoose.model("Movie", movieSchema);
+const Movie = mongoose.model("Movie", movieSchema, "movies_collection");
 
 module.exports = Movie;
 
@@ -81,6 +67,8 @@ app.get("/movies", async (request, response) => {
   // Récupérer tous les films dans mongo
   const movies = await Movie.find();
 
+  console.log(movies);
+
   if (movies.length == 0) {
     // si liste vide, retourner code 701
     return response.json({
@@ -99,7 +87,7 @@ app.get("/movies", async (request, response) => {
 });
 
 //URL GET by id
-app.get("/movies/:id", async (request, response) => {
+app.get("/movie/:id", async (request, response) => {
   // Récupérer le film par son id
   const idParam = request.params.id;
 
@@ -138,14 +126,27 @@ app.post("/save-movie", async (request, response) => {
     !movieJson.director ||
     !movieJson.keywords ||
     !movieJson.runtime ||
-    !moviesJson.release_date ||
+    !movieJson.release_date ||
     !movieJson.vote_average
   ) {
     return response.json({
       code: "710",
-      error: "Un des champs est manquant",
+      error: "Un ou plusieurs champs est manquant",
     });
   }
+
+  // Générer un ID aléatoire entre 100000 et 999999
+  const randomId = Math.floor(Math.random() * 1000000); // Génère un nombre entre 0 et 999999
+
+  // Vérifier si l'ID généré existe déjà dans la base
+  let existingIdMovie = await Movie.findOne({ id: randomId });
+  while (existingIdMovie) {
+    randomId = Math.floor(Math.random() * 1000000); // Regénérer l'ID jusqu'à ce qu'il soit unique
+    existingIdMovie = await Movie.findOne({ id: randomId });
+  }
+
+  // Ajouter l'ID généré dans l'objet movieJson
+  movieJson.id = randomId;
 
   if (typeof movieJson.title != "string") {
     return response.json({
@@ -168,7 +169,7 @@ app.post("/save-movie", async (request, response) => {
     });
   }
 
-  if (existingMovie && existingMovie.id.toString() !== idParam) {
+  if (existingMovie) {
     //RG-003 : Si titre deja existant avec le même Id, code 701
 
     return response.json({
@@ -179,7 +180,7 @@ app.post("/save-movie", async (request, response) => {
   }
 
   // Envoyer le movieJson dans MongoDB
-  // -- Instancier le modele Article avec les données --
+  // -- Instancier le modele Movie avec les données --
   const newMovie = new Movie(movieJson);
 
   // Ajouter le film dans la base de données (persister en base)
@@ -213,12 +214,12 @@ app.put("/movie/:id", async (request, response) => {
     !movieJson.director ||
     !movieJson.keywords ||
     !movieJson.runtime ||
-    !moviesJson.release_date ||
+    !movieJson.release_date ||
     !movieJson.vote_average
   ) {
     return response.json({
       code: "710",
-      error: "Un des champs est manquant",
+      error: "Un ou pluisieurs champs est manquant",
     });
   }
 
@@ -284,7 +285,7 @@ app.delete("/movie/:id", async (request, response) => {
   const idParam = request.params.id;
 
   // Récupérer dans la base le film avec l'id saisi et supprimer
-  const foundMovie = await Movie.findByIdAndDelete({ id: idParam });
+  const foundMovie = await Movie.findOneAndDelete({ id: idParam });
 
   // RG-005 : Si l'id n'existe pas en base code 708
   if (!foundMovie) {

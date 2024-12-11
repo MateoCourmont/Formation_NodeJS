@@ -2,7 +2,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
+const path = require("path");
 const movieRoutes = require("./routes/movieRoutes");
+const viewsRoutes = require("./routes/viewsRoutes");
 const errorHandler = require("./middlewares/errorHandler");
 //const { v4: uuidv4 } = require("uuid");
 //const jwt = require("jsonwebtoken");
@@ -16,8 +18,12 @@ const app = express();
 // Autoriser le back à recevoir des données dans le body
 app.use(express.json());
 
+// Servir les fichiers statiques (images, styles, etc.) depuis le dossier assets
+app.use("/assets", express.static(path.join(__dirname, "views", "assets")));
+
 // Routes
 app.use("/api", movieRoutes);
+app.use("/pages", viewsRoutes);
 
 // Middleware de gestion des erreurs
 app.use(errorHandler);

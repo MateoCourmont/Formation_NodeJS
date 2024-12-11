@@ -8,8 +8,14 @@
   </head>
   <body class="bg-red-200">
     <main class="min-h-screen flex justify-center items-center">
-      <section class="bg-white shadow-md rounded-lg px-6 pb-3 mb-10 w-3/12 flex justify-center items-center flex-col">
-        <img src="/assets/images/Letterboxd2_logo.png" alt="logo" class="size-7/12">
+      <section
+        class="bg-white shadow-md rounded-lg px-6 pb-3 mb-10 w-3/12 flex justify-center items-center flex-col"
+      >
+        <img
+          src="/assets/images/Letterboxd2_logo.png"
+          alt="logo"
+          class="size-7/12"
+        />
         <div class="w-full flex">
           <form
             class="flex justify-center flex-col gap-8 w-full"
@@ -17,14 +23,14 @@
             method="POST"
           >
             <div>
-                <input
-                  class="bg-zinc-100 p-2 rounded-md text-lg w-full"
-                  type="text"
-                  name="username"
-                  id="username"
-                  placeholder="Nom d'utilisateur"
-                />
-              </div>
+              <input
+                class="bg-zinc-100 p-2 rounded-md text-lg w-full"
+                type="text"
+                name="username"
+                id="username"
+                placeholder="Nom d'utilisateur"
+              />
+            </div>
             <div>
               <input
                 class="bg-zinc-100 p-2 rounded-md text-lg w-full"
@@ -34,13 +40,17 @@
                 placeholder="Mot de passe"
               />
             </div>
-            <button class="p-3 bg-gradient-to-r from-rose-300 to-red-100 rounded-md text-white text-lg" type="submit">
+            <button
+              class="p-3 bg-gradient-to-r from-rose-300 to-red-100 rounded-md text-white text-lg"
+              type="submit"
+            >
               Connexion
             </button>
           </form>
         </div>
         <p class="text-center py-6">
-          Vous n'êtes pas inscrit ? <a href=/views/register.html class="text-red-300">Inscription</a>
+          Vous n'êtes pas inscrit ?
+          <a href="/pages/register" class="text-red-300">Inscription</a>
         </p>
       </section>
     </main>

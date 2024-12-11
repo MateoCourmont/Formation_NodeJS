@@ -1,6 +1,7 @@
 // Importer les modules
 const express = require("express");
 const mongoose = require("mongoose");
+const { v4: uuidv4 } = require("uuid");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
@@ -18,12 +19,37 @@ mongoose.connection.on("error", () => {
 // Ca prend x temps à s'executer
 mongoose.connect("mongodb://localhost:27017/db_articles");
 
-// Créer le schema
-const Article = mongoose.model(
-  "Article",
-  { title: String, content: String, author: String },
-  "articles_collection"
-);
+// Définir le schéma pour les films
+const movieSchema = new mongoose.Schema({
+  id: { type: Number, unique: true, default: uuidv4 }, // Identifiant unique du film
+  title: { type: String }, // Titre du film
+  genres: { type: String }, // Genres
+  cast: { type: String }, // Liste des acteurs
+  director: { type: String }, // Réalisateur
+  keywords: { type: String }, // Mots-clés
+  runtime: { type: Number }, // Durée en minutes
+  release_date: { type: Date }, // Date de sortie
+  vote_average: { type: Number }, // Note moyenne
+});
+
+movieSchema.pre("save", async function (next) {
+  if (this.isNew) {
+    // Vérifier si l'ID généré existe déjà dans la base
+    const existingMovie = await mongoose
+      .model("Movie")
+      .findOne({ id: this.id });
+    if (existingMovie) {
+      // Si un doublon est détecté, générer un nouvel ID
+      this.id = uuidv4();
+    }
+  }
+  next();
+});
+
+// Créer le modèle basé sur le schéma
+const Movie = mongoose.model("Movie", movieSchema);
+
+module.exports = Movie;
 
 // // Créer le schema
 // const userSchema = mongoose.Schema({
@@ -51,176 +77,193 @@ const app = express();
 app.use(express.json());
 
 // Une route / un point d'entrée
-app.get("/articles", async (request, response) => {
-  // Récupérer tous les produits dans mongo
-  const articles = await Article.find();
+app.get("/movies", async (request, response) => {
+  // Récupérer tous les films dans mongo
+  const movies = await Movie.find();
 
-  if (articles.length == 0) {
+  if (movies.length == 0) {
     // si liste vide, retourner code 701
     return response.json({
       code: "701",
-      message: "La liste des articles est vide",
+      message: "La liste des films est vide",
       data: null,
     });
   }
 
-  // RG-001 : Récupérer les articles
+  // RG-001 : Récupérer les films
   return response.json({
     code: "200",
-    message: "La liste des articles a été récupérés avec succès",
-    data: articles,
+    message: "La liste des films a été récupérés avec succès",
+    data: movies,
   });
 });
 
 //URL GET by id
-app.get("/article/:id", async (request, response) => {
-  // Récupérer le produit par son id
+app.get("/movies/:id", async (request, response) => {
+  // Récupérer le film par son id
   const idParam = request.params.id;
 
-  // // RG-002 : récupérer l'article trouvé
-  const foundArticle = await Article.findOne({ _id: idParam });
+  // // RG-002 : récupérer le film trouvé
+  const foundMovie = await Movie.findOne({ id: idParam });
 
   //RG-002 : Si l'id n'existe pas en base ; code 702
-  if (!foundArticle) {
+  if (!foundMovie) {
     return response.json({
       code: "702",
-      message: "Impossible de récupérer un article avec l'UID: " + idParam,
+      message: "Impossible de récupérer un film avec l'UID: " + idParam,
       data: null,
     });
   }
 
   return response.json({
     code: "200",
-    message: "Article récupéré avec succès",
-    data: foundArticle,
+    message: "Film récupéré avec succès",
+    data: foundMovie,
   });
 });
 
-// Ajouter un article
-app.post("/save-article", async (request, response) => {
+// Ajouter un film
+app.post("/save-movie", async (request, response) => {
   // Récupérer la requête
-  const articleJson = request.body;
+  const movieJson = request.body;
 
   // Vérifier si le titre existe déjà dans la base
-  const existingArticle = await Article.findOne({ title: articleJson.title });
+  const existingMovie = await Movie.findOne({ title: movieJson.title });
 
   // Contrôle de surface
-  if (!articleJson.title || !articleJson.content || !articleJson.author) {
+  if (
+    !movieJson.title ||
+    !movieJson.genres ||
+    !movieJson.cast ||
+    !movieJson.director ||
+    !movieJson.keywords ||
+    !movieJson.runtime ||
+    !moviesJson.release_date ||
+    !movieJson.vote_average
+  ) {
     return response.json({
       code: "710",
       error: "Un des champs est manquant",
     });
   }
 
-  if (typeof articleJson.title != "string") {
+  if (typeof movieJson.title != "string") {
     return response.json({
       code: "710",
       error: "Le champs title doit être une châine de caractère",
     });
   }
 
-  if (typeof articleJson.content != "string") {
+  if (typeof movieJson.genres != "string") {
     return response.json({
       code: "710",
-      error: "Le champs content doit être une châine de caractère",
+      error: "Le champs genres doit être une châine de caractère",
     });
   }
 
-  if (typeof articleJson.author != "string") {
+  if (typeof movieJson.cast != "string") {
     return response.json({
       code: "710",
-      error: "Le champs author doit être une châine de caractère",
+      error: "Le champs cast doit être une châine de caractère",
     });
   }
 
-  if (existingArticle) {
-    //RG-003 : Si titre deja existant, code 701
+  if (existingMovie && existingMovie.id.toString() !== idParam) {
+    //RG-003 : Si titre deja existant avec le même Id, code 701
 
     return response.json({
       code: "701",
-      message: "Impossible d'ajouter un article avec un titre déjà existant",
+      message: "Impossible d'ajouter un film avec un titre déjà existant",
       data: null,
     });
   }
 
-  // Envoyer le articleJson dans MongoDB
+  // Envoyer le movieJson dans MongoDB
   // -- Instancier le modele Article avec les données --
-  const newArticle = new Article(articleJson);
+  const newMovie = new Movie(movieJson);
 
-  // Ajouter l'article dans la base de données (persister en base)
-  await newArticle.save();
+  // Ajouter le film dans la base de données (persister en base)
+  await newMovie.save();
 
-  //RG-003 : Ajouter un article
+  //RG-003 : Ajouter un film
 
   // Retourner un json
   return response.json({
     code: "200",
-    message: "Article ajouté avec succès",
-    data: articleJson,
+    message: "Film ajouté avec succès",
+    data: movieJson,
   });
 });
 
-// Modifier un article
-app.put("/article/:id", async (request, response) => {
-  const articleJson = request.body;
+// Modifier un film
+app.put("/movie/:id", async (request, response) => {
+  const movieJson = request.body;
 
-  // Récupérer l'article par son id
+  // Récupérer le film par son id
   const idParam = request.params.id;
 
   // Vérifier si le titre existe déjà dans la base
-  const existingArticle = await Article.findOne({ title: articleJson.title });
+  const existingMovie = await Movie.findOne({ title: movieJson.title });
 
   // Contrôle de surface
-  if (!articleJson.title || !articleJson.content || !articleJson.author) {
+  if (
+    !movieJson.title ||
+    !movieJson.genres ||
+    !movieJson.cast ||
+    !movieJson.director ||
+    !movieJson.keywords ||
+    !movieJson.runtime ||
+    !moviesJson.release_date ||
+    !movieJson.vote_average
+  ) {
     return response.json({
       code: "710",
       error: "Un des champs est manquant",
     });
   }
 
-  if (typeof articleJson.title != "string") {
+  if (typeof movieJson.title != "string") {
     return response.json({
       code: "710",
       error: "Le champs title doit être une châine de caractère",
     });
   }
 
-  if (typeof articleJson.content != "string") {
+  if (typeof movieJson.genres != "string") {
     return response.json({
       code: "710",
-      error: "Le champs content doit être une châine de caractère",
+      error: "Le champs genres doit être une châine de caractère",
     });
   }
 
-  if (typeof articleJson.author != "string") {
+  if (typeof movieJson.cast != "string") {
     return response.json({
       code: "710",
-      error: "Le champs author doit être une châine de caractère",
+      error: "Le champs cast doit être une châine de caractère",
     });
   }
 
   // RG-004 : Si titre deja existant, code 701
-  if (existingArticle) {
+  if (existingMovie) {
     return response.json({
       code: "701",
-      message: "Impossible de modifier un article avec un titre déjà existant",
+      message: "Impossible de modifier un film avec un titre déjà existant",
       data: null,
     });
   }
 
-  // RG-004 : récupérer l'article trouvé et le modifier
-  const foundArticle = await Article.findOneAndUpdate(
-    { _id: idParam },
-    articleJson,
-    { new: true, runValidators: true }
-  );
+  // RG-004 : récupérer le film trouvé et le modifier
+  const foundMovie = await Movie.findOneAndUpdate({ id: idParam }, movieJson, {
+    new: true,
+    runValidators: true,
+  });
 
   //RG-004 : Si l'id n'existe pas en base ; code 702
-  if (!foundArticle) {
+  if (!foundMovie) {
     return response.json({
       code: "702",
       message:
-        "Impossible de récupérer un article et le modifier avec l'UID inexistant: " +
+        "Impossible de récupérer un film et le modifier avec l'UID inexistant: " +
         idParam,
       data: null,
     });
@@ -230,33 +273,33 @@ app.put("/article/:id", async (request, response) => {
 
   return response.json({
     code: "200",
-    message: "Article modifié avec succès",
-    data: foundArticle,
+    message: "Film modifié avec succès",
+    data: foundMovie,
   });
 });
 
-// Supprimer un article
-app.delete("/article/:id", async (request, response) => {
-  // Récupérer l'article par son id
+// Supprimer un film
+app.delete("/movie/:id", async (request, response) => {
+  // Récupérer le film par son id
   const idParam = request.params.id;
 
-  // Récupérer dans la base l'article avec l'id saisi et supprimer
-  const foundArticle = await Article.findByIdAndDelete({ _id: idParam });
+  // Récupérer dans la base le film avec l'id saisi et supprimer
+  const foundMovie = await Movie.findByIdAndDelete({ id: idParam });
 
   // RG-005 : Si l'id n'existe pas en base code 708
-  if (!foundArticle) {
+  if (!foundMovie) {
     return response.json({
       code: "702",
-      message: "Impossible de supprimer un article un UID inexistant",
+      message: "Impossible de supprimer un film un UID inexistant",
       data: null,
     });
   }
 
-  // RG-005Retourner une confirmation de suppression, code 200
+  // RG-005 : Retourner une confirmation de suppression, code 200
   return response.json({
     code: "200",
-    message: "Article supprimé avec succès",
-    data: foundArticle,
+    message: "Film supprimé avec succès",
+    data: foundMovie,
   });
 });
 

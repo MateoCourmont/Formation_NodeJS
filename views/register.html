@@ -18,9 +18,8 @@
         />
         <div class="w-full flex">
           <form
+            id="registerForm"
             class="flex justify-center flex-col gap-8 w-full"
-            action="/register"
-            method="POST"
           >
             <div>
               <input
@@ -62,6 +61,45 @@
           <a href="/pages/login" class="text-red-300">Connexion</a>
         </p>
       </section>
+      <script>
+        const apiUrl = "http://localhost:3000/api";
+        document
+          .getElementById("registerForm")
+          .addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            // Récupérer les valeurs des champs du formulaire
+            const email = document.getElementById("email").value;
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            try {
+              // Envoyer une requête POST avec fetch
+              const response = await fetch(`${apiUrl}/register`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json", // Spécifie que les données sont au format JSON
+                },
+                body: JSON.stringify({ email, username, password }), // Convertit les données en JSON
+              });
+
+              // Vérifier la réponse
+              if (response.ok) {
+                const result = await response.json();
+                //alert("Connexion réussie !"); // Affiche un message de succès
+                window.location.href = result.redirectUrl; // Rediriger vers la page de connexion
+                console.log(result);
+              } else {
+                const error = await response.json();
+                //alert("Erreur : une erreur est survenue"); // Affiche un message d'erreur
+                console.error(error);
+              }
+            } catch (err) {
+              //alert("Une erreur est survenue");
+              console.error(err);
+            }
+          });
+      </script>
     </main>
     <footer>
       <p class="text-center py-6 bg-white shadow-inner">

@@ -72,7 +72,7 @@ const addMovie = async (request, response) => {
     });
   }
 
-  // Générer un ID aléatoire entre 100000 et 999999
+  // Générer un ID aléatoire
   const randomId = Math.floor(Math.random() * 1000000); // Génère un nombre entre 0 et 999999
 
   // Vérifier si l'ID généré existe déjà dans la base

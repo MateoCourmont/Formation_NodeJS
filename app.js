@@ -5,10 +5,8 @@ const dotenv = require("dotenv");
 const path = require("path");
 const movieRoutes = require("./routes/movieRoutes");
 const viewsRoutes = require("./routes/viewsRoutes");
+const authRoutes = require("./routes/authRoutes");
 const errorHandler = require("./middlewares/errorHandler");
-//const { v4: uuidv4 } = require("uuid");
-//const jwt = require("jsonwebtoken");
-//const bcrypt = require("bcrypt");
 
 dotenv.config();
 
@@ -23,6 +21,7 @@ app.use("/assets", express.static(path.join(__dirname, "views", "assets")));
 
 // Routes
 app.use("/api", movieRoutes);
+app.use("/api", authRoutes);
 app.use("/pages", viewsRoutes);
 
 // Middleware de gestion des erreurs

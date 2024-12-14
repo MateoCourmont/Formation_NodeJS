@@ -77,8 +77,8 @@
             // Vérifier la réponse
             if (response.ok) {
               const result = await response.json();
-              alert("Connexion réussie !"); // Affiche un message de succès
-              window.location.href = "https://en.wikipedia.org/"; // Rediriger vers la page de connexion
+              //alert("Connexion réussie !"); // Affiche un message de succès
+              window.location.href = result.redirectUrl; // Rediriger vers la page de connexion
               console.log(result);
             } else {
               const error = await response.json();

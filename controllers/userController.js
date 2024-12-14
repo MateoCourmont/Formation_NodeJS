@@ -33,6 +33,7 @@ const postUserRegistration = async (request, response) => {
     response.json({
       code: "200",
       message: "Utilisateur enregistré avec succès",
+      loginRedirect: "/pages/login",
       data: { user },
     });
   } catch (error) {

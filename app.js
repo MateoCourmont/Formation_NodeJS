@@ -1,5 +1,6 @@
 // Importer les modules
 const express = require("express");
+const cors = require("cors");
 const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const path = require("path");
@@ -12,6 +13,14 @@ dotenv.config();
 
 // Instancier le server grace à express
 const app = express();
+
+app.use(
+  cors({
+    origin: "http://127.0.0.1:3000",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // Autoriser le back à recevoir des données dans le body
 app.use(express.json());

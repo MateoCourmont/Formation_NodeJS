@@ -5,19 +5,39 @@ const jwt = require("jsonwebtoken");
 const postUserRegistration = async (request, response) => {
   try {
     const { username, email, password } = request.body;
-    const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Générer un ID aléatoire entre 100000 et 999999
-    let randomId = Math.floor(Math.random() * 1000000);
-
-    // Vérifier si l'ID généré existe déjà dans la base
-    let existingIdUser = await User.findOne({ id: randomId });
-    while (existingIdUser) {
-      randomId = Math.floor(Math.random() * 1000000); // Regénérer l'ID jusqu'à ce qu'il soit unique
-      existingIdUser = await User.findOne({ id: randomId }); // Mettre à jour la recherche
+    if (!username || !email || !password) {
+      return response.status(400).json({
+        code: 400,
+        message: "Tous les champs sont obligatoires.",
+      });
     }
 
-    // Créer un nouvel utilisateur
+    const existingEmail = await User.findOne({ email });
+    if (existingEmail) {
+      return response.status(400).json({
+        code: 400,
+        message: "Cet email est déjà utilisé.",
+      });
+    }
+
+    const existingUsername = await User.findOne({ username });
+    if (existingUsername) {
+      return response.status(400).json({
+        code: 400,
+        message: "Ce nom d'utilisateur est déjà utilisé.",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    let randomId = Math.floor(Math.random() * 1000000);
+    let existingIdUser = await User.findOne({ id: randomId });
+
+    while (existingIdUser) {
+      randomId = Math.floor(Math.random() * 1000000);
+      existingIdUser = await User.findOne({ id: randomId });
+    }
+
     const user = new User({
       id: randomId,
       username,
@@ -25,22 +45,18 @@ const postUserRegistration = async (request, response) => {
       password: hashedPassword,
     });
 
-    //Persister le user
     await user.save();
-    console.log("Utilisateur sauvegardé avec succès");
 
-    // Réponse réussie
-    response.json({
-      code: "200",
-      message: "Utilisateur enregistré avec succès",
+    return response.status(200).json({
+      code: 200,
+      message: "Utilisateur enregistré avec succès.",
       loginRedirect: "/pages/login",
-      data: { user },
     });
   } catch (error) {
-    console.error("Erreur lors de l'enregistrement de l'utilisateur:", error);
-    response.json({
-      code: "500",
-      message: "Erreur interne du serveur",
+    console.error("Erreur lors de l'enregistrement :", error);
+    return response.status(500).json({
+      code: 500,
+      message: "Erreur interne du serveur.",
     });
   }
 };
@@ -48,36 +64,47 @@ const postUserRegistration = async (request, response) => {
 const postUserLogin = async (request, response) => {
   try {
     const { username, password } = request.body;
+
+    // Vérifier si tous les champs sont remplis
+    if (!username || !password) {
+      return response.status(400).json({
+        code: 400,
+        message: "Tous les champs sont obligatoires.",
+      });
+    }
+
     const user = await User.findOne({ username });
     if (!user) {
-      return response.json({
-        message: "Authentifiction failed",
+      return response.status(401).json({
         code: 401,
+        message: "Nom d'utilisateur ou mot de passe incorrect.",
       });
     }
+
     const passwordMatch = await bcrypt.compare(password, user.password);
     if (!passwordMatch) {
-      return response.json({
-        message: "Authentifiction failed",
+      return response.status(401).json({
         code: 401,
+        message: "Nom d'utilisateur ou mot de passe incorrect.",
       });
     }
+
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
 
     // Réponse réussie
-    response.json({
-      token,
+    return response.status(200).json({
       code: 200,
-      message: "Authentification suceed",
-      redirectUrl: "https://www.wikipedia.org",
+      token,
+      message: "Authentification réussie.",
+      redirectUrl: "https://wikipedia.org",
     });
   } catch (error) {
-    console.error(error);
-    response.json({
-      code: "500",
-      message: "Login failed",
+    console.error("Erreur lors de la connexion :", error);
+    return response.status(500).json({
+      code: 500,
+      message: "Erreur interne du serveur. Veuillez réessayer.",
     });
   }
 };

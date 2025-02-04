@@ -89,39 +89,45 @@
                 headers: {
                   "Content-Type": "application/json", // Spécifie que les données sont au format JSON
                 },
-                body: JSON.stringify({ email, username, password }), // Convertit les données en JSON
+                body: JSON.stringify({ email, username, password }),
               });
 
               // Vérifier la réponse
               if (response.ok) {
                 const result = await response.json();
-                //alert("Connexion réussie !");
-                window.location.href = result.loginRedirect; // Rediriger vers la page de connexion
+                // Rediriger vers la page de connexion
+                window.location.href = result.loginRedirect;
                 console.log(result);
               } else {
+                // Extraire le contenu JSON en cas d'erreur
+                const errorResult = await response.json();
+
                 // Gestion des erreurs spécifiques
-                if (result.code === 400 && result.message.includes("email")) {
+                if (
+                  errorResult.code === 400 &&
+                  errorResult.message.includes("email")
+                ) {
                   errorMessage.style.display = "block";
                   errorMessage.textContent = "Cet email est déjà utilisé.";
                 } else if (
-                  result.code === 400 &&
-                  result.message.includes("nom d'utilisateur")
+                  errorResult.code === 400 &&
+                  errorResult.message.includes("nom d'utilisateur")
                 ) {
                   errorMessage.style.display = "block";
                   errorMessage.textContent =
-                    "Ce nom d'utilisateur est déjà pris.";
+                    "Ce nom d'utilisateur est déjà utilisé.";
                 } else {
                   // Gestion générique des autres erreurs
                   errorMessage.style.display = "block";
                   errorMessage.textContent =
-                    result.message || "Une erreur est survenue.";
+                    errorResult.message || "Une erreur est survenue.";
                 }
               }
             } catch (err) {
+              // Gestion des erreurs inattendues
               errorMessage.style.display = "block";
               errorMessage.textContent =
                 "Erreur lors de la requête. Veuillez réessayer.";
-              //alert("Une erreur est survenue");
               console.error(err);
             }
           });

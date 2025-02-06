@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page d'Accueil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <h1>TEST AUTH ACCEUIL</h1>
+    <p>Contenu privé accessible après connexion.</p>
+
+    <script>
+      // Vérification du token avant de charger la page
+      window.onload = function () {
+        const token = localStorage.getItem("authToken");
+
+        if (!token) {
+          // Si le token est manquant : rediriger vers login
+          window.location.href = "/pages/login";
+        } else {
+          // Si le token existe : accès à la page
+          console.log("Token trouvé, accès autorisé.");
+        }
+      };
+    </script>
+  </body>
+</html>

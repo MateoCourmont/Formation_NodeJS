@@ -98,7 +98,7 @@ const postUserLogin = async (request, response) => {
       code: 200,
       token,
       message: "Authentification réussie.",
-      redirectUrl: "https://wikipedia.org",
+      redirectUrl: "/pages/index",
     });
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);

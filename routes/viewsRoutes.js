@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
+const verifyToken = require("../middlewares/verifyToken");
 
 // Route pour servir la page index.html
 router.get("/index", (req, res) => {
@@ -14,6 +15,10 @@ router.get("/login", (req, res) => {
 
 router.get("/register", (req, res) => {
   res.sendFile(path.join(__dirname, "../views", "register.html"));
+});
+
+router.get("/index", verifyToken, (req, res) => {
+  res.sendFile(path.join(__dirname, "../views", "index.html"));
 });
 
 // Exporter les routes

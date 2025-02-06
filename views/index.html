@@ -5,11 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Page d'Accueil</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/assets/styles/style.css" />
   </head>
-  <body>
-    <h1>TEST AUTH ACCEUIL</h1>
-    <p>Contenu privé accessible après connexion.</p>
-
+  <body class="bg-gray-900">
+    <section id="top_index_screen" class="h-[70svh]">
+      <header class="flex justify-center">
+        <nav class="navbar w-full flex justify-center h-16 gap-9">
+          <img
+            class="w-2/12"
+            src="/assets/images/letterboxd-navbar-logo.svg"
+            alt="navbar_logo"
+          />
+          <ul
+            class="flex items-center gap-6 text-white uppercase font-extrabold text-[0.8em] leading-[2]"
+          >
+            <a href="/pages/login"><li>Connexion</li></a>
+            <a href="/pages/register"><li>Inscription</li></a>
+            <li>Films</li>
+            <li>Listes</li>
+            <li>Membres</li>
+            <li>Journal</li>
+            <input
+              type="text"
+              placeholder="Rechercher.."
+              class="py-1 pl-2 text-[0.8em] rounded-2xl bg-gray-500 bg-opacity-50 w-[8rem]"
+            />
+          </ul>
+        </nav>
+      </header>
+    </section>
+    <section id="main_title_wrapper">
+      <div class="flex justify-center text-center">
+        <h1 id="main_title" class="text-white leading-snug tracking-tight">
+          <span>Suivez les films que vous avez vus.</span> <br />
+          <span>Sauvegardez ceux que vous voulez voir.</span> <br />
+          <span>Parlez-en à vos amis.</span> <br />
+        </h1>
+      </div>
+    </section>
     <script>
       // Vérification du token avant de charger la page
       window.onload = function () {

@@ -44,16 +44,31 @@
       </div>
     </section>
     <script>
-      // Vérification du token avant de charger la page
+      import jwtDecode from "jwt-decode";
+
       window.onload = function () {
         const token = localStorage.getItem("authToken");
 
         if (!token) {
-          // Si le token est manquant : rediriger vers login
           window.location.href = "/pages/login";
-        } else {
-          // Si le token existe : accès à la page
-          console.log("Token trouvé, accès autorisé.");
+          return;
+        }
+
+        try {
+          const decodedToken = jwtDecode(token);
+          const isExpired = decodedToken.exp * 1000 < Date.now();
+
+          if (isExpired) {
+            console.log("Token expiré. Redirection.");
+            localStorage.removeItem("authToken");
+            window.location.href = "/pages/login";
+          } else {
+            console.log("Token valide. Accès autorisé.");
+          }
+        } catch (error) {
+          console.error("Erreur lors de la validation :", error);
+          localStorage.removeItem("authToken");
+          window.location.href = "/pages/login";
         }
       };
     </script>

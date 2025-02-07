@@ -8,7 +8,6 @@ router.get("/index", (req, res) => {
   res.sendFile(path.join(__dirname, "../views", "index.html"));
 });
 
-// Ajouter d'autres routes pour des pages comme login, register, etc.
 router.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "../views", "login.html"));
 });
